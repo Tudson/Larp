@@ -1,0 +1,17 @@
+{
+  "name": "organism-artificial-autonom",
+  "version": "1.0.0",
+  "description": "Simulare a unui organism artificial bio-inspirat: corp, hormoni, învățare din zero, emoții emergente și adicție.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "experiments": "node experiments/run.mjs",
+    "build": "node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

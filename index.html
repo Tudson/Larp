@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Organism artificial autonom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Simulare: un organism artificial care învață din zero să supraviețuiască, dezvoltă stări emoționale și ajunge să se autodistrugă printr-o substanță care îi deturnează dopamina.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Concept: bancă de observație de laborator. Arena (vasul) în stânga, instrumentele
+   fiziologice în dreapta, "mintea" organismului dedesubt, apoi laboratorul de experimente. */
+:root {
+  --bg: #eef2f1;
+  --surface: #fbfcfc;
+  --surface-2: #e3e9e7;
+  --ink: #0f1715;
+  --ink-2: #45524e;
+  --muted: #6f7c78;
+  --line: #d3dbd8;
+  --grid: #e4eae8;
+  --accent: #1e6a73;
+  --accent-ink: #ffffff;
+  --arena-bg: #f7f9f8;
+  --arena-grid: #e3e9e7;
+  --organism: #16201d;
+  --shadow: 0 1px 2px rgba(15, 23, 21, 0.06), 0 6px 18px rgba(15, 23, 21, 0.05);
+
+  --good: #0ca30c;
+  --warn: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+
+  --h-ghrelin: #1baf7a;
+  --h-ne: #eb6834;
+  --h-cortisol: #2a78d6;
+  --h-dopamine: #e87ba4;
+
+  --s-calm: #1baf7a;
+  --s-alert: #eda100;
+  --s-fear: #6250d6;
+  --s-frustration: #eb6834;
+  --s-apathy: #2a78d6;
+  --s-euphoria: #e87ba4;
+  --s-discomfort: #e34948;
+
+  --a-food: #008300;
+  --a-search: #2a78d6;
+  --a-avoid: #e34948;
+  --a-substance: #6250d6;
+  --a-rest: #eda100;
+  --a-other: #b8c1be;
+
+  --m-want: #6250d6;
+  --m-like: #eda100;
+  --m-goal: #1baf7a;
+
+  --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1211;
+    --surface: #131918;
+    --surface-2: #1b2321;
+    --ink: #e6ecea;
+    --ink-2: #b2bdb9;
+    --muted: #84908c;
+    --line: #27312f;
+    --grid: #1d2624;
+    --accent: #5fb7bf;
+    --accent-ink: #06201f;
+    --arena-bg: #0f1514;
+    --arena-grid: #1a2321;
+    --organism: #e8efec;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+    --h-ghrelin: #199e70;
+    --h-ne: #d95926;
+    --h-cortisol: #3987e5;
+    --h-dopamine: #d55181;
+    --s-calm: #199e70;
+    --s-alert: #c98500;
+    --s-fear: #9085e9;
+    --s-frustration: #d95926;
+    --s-apathy: #3987e5;
+    --s-euphoria: #d55181;
+    --s-discomfort: #e66767;
+    --a-food: #0ca30c;
+    --a-search: #3987e5;
+    --a-avoid: #e66767;
+    --a-substance: #9085e9;
+    --a-rest: #c98500;
+    --a-other: #46514e;
+    --m-want: #9085e9;
+    --m-like: #c98500;
+    --m-goal: #199e70;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1211;
+  --surface: #131918;
+  --surface-2: #1b2321;
+  --ink: #e6ecea;
+  --ink-2: #b2bdb9;
+  --muted: #84908c;
+  --line: #27312f;
+  --grid: #1d2624;
+  --accent: #5fb7bf;
+  --accent-ink: #06201f;
+  --arena-bg: #0f1514;
+  --arena-grid: #1a2321;
+  --organism: #e8efec;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+  --h-ghrelin: #199e70;
+  --h-ne: #d95926;
+  --h-cortisol: #3987e5;
+  --h-dopamine: #d55181;
+  --s-calm: #199e70;
+  --s-alert: #c98500;
+  --s-fear: #9085e9;
+  --s-frustration: #d95926;
+  --s-apathy: #3987e5;
+  --s-euphoria: #d55181;
+  --s-discomfort: #e66767;
+  --a-food: #0ca30c;
+  --a-search: #3987e5;
+  --a-avoid: #e66767;
+  --a-substance: #9085e9;
+  --a-rest: #c98500;
+  --a-other: #46514e;
+  --m-want: #9085e9;
+  --m-like: #c98500;
+  --m-goal: #199e70;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h2 { font-size: var(--step-2); line-height: 1.2; }
+h3 { font-size: var(--step-1); line-height: 1.25; }
+p { margin: 0; }
+a { color: var(--accent); }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: var(--step--1); }
+
+/* ------------------------------------------------------------------ antet */
+.masthead { padding-block: 28px 18px; }
+.masthead .wrap { display: grid; gap: 10px; }
+.masthead h1 { font-size: var(--step-3); line-height: 1.02; }
+.masthead .lede { max-width: 72ch; color: var(--ink-2); font-size: var(--step-1); line-height: 1.5; }
+.pillars { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 4px; }
+.pillars span { font-size: var(--step--1); color: var(--ink-2); }
+.pillars b { font-family: var(--font-mono); font-weight: 500; color: var(--muted); margin-right: 4px; }
+
+/* -------------------------------------------------------------- comenzi */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.toolbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding-block: 10px;
+}
+.toolbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 var(--step--1)/1 var(--font-body);
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, select:focus-visible, input:focus-visible, .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 104px; justify-content: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button {
+  appearance: none; border: 0; background: transparent; color: var(--ink-2);
+  font: 500 var(--step--1)/1 var(--font-mono); padding: 9px 10px; min-height: 36px; cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+.field { display: inline-flex; align-items: center; gap: 6px; font-size: var(--step--1); color: var(--ink-2); }
+select, input[type="number"] {
+  font: 500 var(--step--1)/1 var(--font-body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 8px;
+  min-height: 36px;
+}
+input[type="number"] { width: 76px; font-family: var(--font-mono); }
+.clock { margin-left: auto; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.clock .t { font-family: var(--font-mono); font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+.clock .phase-name { font-family: var(--font-display); font-weight: 600; }
+
+/* ---------------------------------------------------------- banca */
+main { display: grid; gap: 28px; padding-block: 18px 48px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px 16px;
+  min-width: 0;
+}
+.card > header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.card > header p { color: var(--muted); font-size: var(--step--1); }
+.bench { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.arena-card { padding: 10px; }
+.arena-wrap { position: relative; }
+#arena { display: block; width: 100%; aspect-ratio: 100 / 70; border-radius: 6px; background: var(--arena-bg); touch-action: manipulation; }
+.overlay {
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+}
+.overlay[hidden] { display: none !important; }
+.overlay .msg {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px 18px; text-align: center; max-width: 80%;
+  box-shadow: var(--shadow);
+}
+.overlay .msg strong { font-family: var(--font-display); font-size: var(--step-2); display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step--1); color: var(--ink-2); padding: 10px 4px 2px; }
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.legend svg { flex: none; }
+.timeline { margin-top: 10px; }
+#timeline { display: block; width: 100%; height: 58px; }
+
+.left-col { display: grid; gap: 16px; min-width: 0; }
+.instruments { display: grid; gap: 12px; min-width: 0; }
+.card.wide { grid-column: 1 / -1; }
+.journal .log { max-height: 340px; }
+.vitals { display: grid; gap: 10px; }
+.meter { display: grid; grid-template-columns: 7.5em 1fr 3.5em; align-items: center; gap: 10px; font-size: var(--step--1); }
+.meter .bar { height: 10px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.meter .fill { height: 100%; width: 0%; border-radius: 6px; background: var(--good); transition: width 0.12s linear, background-color 0.3s; }
+.meter .val { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.state-card { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 12px; align-items: center; }
+.state-now { display: grid; gap: 4px; }
+.state-chip { display: inline-flex; align-items: center; gap: 10px; }
+.state-chip .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--s-calm); box-shadow: 0 0 0 3px color-mix(in srgb, var(--surface-2) 80%, transparent); }
+.state-chip .name { font-family: var(--font-display); font-size: var(--step-2); font-weight: 600; line-height: 1.1; }
+.state-why { font-size: var(--step--1); color: var(--ink-2); }
+#circumplex { width: 132px; height: 132px; display: block; }
+.gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.gauge { display: grid; gap: 4px; font-size: var(--step--1); }
+.gauge .row { display: flex; justify-content: space-between; gap: 8px; color: var(--ink-2); }
+.gauge .row b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.gauge .track { position: relative; height: 6px; background: var(--surface-2); border-radius: 4px; }
+.gauge .pip { position: absolute; top: -3px; width: 4px; height: 12px; border-radius: 2px; background: var(--ink); transform: translateX(-2px); transition: left 0.15s linear; }
+.gauge .ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.75rem; }
+canvas.chart { display: block; width: 100%; }
+
+/* ------------------------------------------------------------- mintea */
+.section-head { display: grid; gap: 6px; max-width: 80ch; }
+.section-head p { color: var(--ink-2); }
+.mind { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.key-row { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--step--1); color: var(--ink-2); }
+.key-row .k { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.linekey { width: 16px; height: 2px; border-radius: 2px; display: inline-block; }
+.note { font-size: var(--step--1); color: var(--muted); margin-top: 8px; }
+
+/* ------------------------------------------------------------ jurnal */
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-height: 420px; overflow: auto; }
+.log li { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 10px; padding: 7px 2px; border-top: 1px solid var(--grid); font-size: var(--step--1); }
+.log li:first-child { border-top: 0; }
+.log .when { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.log .tone-phase .what { font-weight: 600; }
+.log .tone-death .what { font-weight: 600; color: var(--critical); }
+.log .tag { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.state-table { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
+.state-table th, .state-table td { text-align: right; padding: 6px 6px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+.state-table th:first-child, .state-table td:first-child { text-align: left; }
+.state-table th { color: var(--muted); font-weight: 500; }
+
+/* -------------------------------------------------------- laborator */
+.lab-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.progress { height: 6px; width: 180px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.progress .fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; }
+.cond-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.cond { display: grid; gap: 6px; align-content: start; }
+.cond h3 { font-size: var(--step-0); }
+.cond .verdict { display: flex; align-items: baseline; gap: 8px; }
+.cond .verdict .big { font-family: var(--font-display); font-size: var(--step-2); font-weight: 600; }
+.cond .verdict .of { color: var(--muted); font-size: var(--step--1); }
+.cond p { font-size: var(--step--1); color: var(--ink-2); }
+.cond svg { width: 100%; height: auto; display: block; }
+.cond.reference { border-color: var(--ink-2); }
+.table-wrap { overflow-x: auto; }
+table.results { border-collapse: collapse; width: 100%; min-width: 760px; font-size: var(--step--1); }
+table.results th, table.results td { padding: 8px 8px; border-bottom: 1px solid var(--grid); text-align: right; vertical-align: top; font-variant-numeric: tabular-nums; }
+table.results th:first-child, table.results td:first-child { text-align: left; }
+table.results th { color: var(--muted); font-weight: 500; }
+table.results td .q { color: var(--muted); font-size: 0.75rem; display: block; }
+
+/* -------------------------------------------------------- metodă */
+.method { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.method ul, .method ol { margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method li { color: var(--ink-2); }
+.method li b { color: var(--ink); font-weight: 600; }
+.refs { font-size: var(--step--1); color: var(--ink-2); columns: 2 22em; column-gap: 28px; }
+.refs p { break-inside: avoid; margin-bottom: 6px; }
+
+.tooltip {
+  position: fixed; z-index: 20; pointer-events: none;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
+  padding: 8px 10px; font-size: var(--step--1); min-width: 150px;
+}
+.tooltip .tt-title { font-family: var(--font-mono); color: var(--muted); margin-bottom: 4px; }
+.tooltip .tt-row { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 6px; }
+.tooltip .tt-row b { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+footer { padding-block: 0 32px; color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 1080px) {
+  .bench { grid-template-columns: minmax(0, 1fr); }
+  .cond-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .toolbar { position: static; backdrop-filter: none; }
+  .mind, .method { grid-template-columns: minmax(0, 1fr); }
+  .clock { margin-left: 0; width: 100%; }
+  .state-card { grid-template-columns: minmax(0, 1fr) 112px; }
+  #circumplex { width: 112px; height: 112px; }
+}
+@media (max-width: 480px) {
+  .cond-grid { grid-template-columns: minmax(0, 1fr); }
+  .gauges { grid-template-columns: minmax(0, 1fr); }
+  .meter { grid-template-columns: 6.5em 1fr 3.2em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meter .fill, .gauge .pip, .progress .fill { transition: none; }
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Simulare · fără reguli preprogramate · fără date de antrenament</p>
+    <h1>Organism artificial autonom</h1>
+    <p class="lede">Un organism care se naște fără să știe ce înseamnă hrana sau pericolul. Are un corp cu nevoi, hormoni care îi schimbă felul în care gândește și un creier care învață doar din ce i se întâmplă. Îl urmărești crescând, supraviețuind, trecând prin frică și frustrare, apoi întâlnind o substanță care îi deturnează dopamina.</p>
+    <div class="pillars" aria-label="Cei patru piloni">
+      <span><b>1</b>Corp și chimie</span>
+      <span><b>2</b>Dezvoltare: de la dependență la autonomie</span>
+      <span><b>3</b>Stări emoționale emergente</span>
+      <span><b>4</b>Adicție și autodistrugere</span>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar" role="toolbar" aria-label="Comenzile simulării">
+  <div class="wrap">
+    <button class="btn primary" id="play" type="button">Pornește</button>
+    <div class="seg" id="speed" role="group" aria-label="Viteza">
+      <button type="button" data-speed="1" aria-pressed="false">1×</button>
+      <button type="button" data-speed="5" aria-pressed="false">5×</button>
+      <button type="button" data-speed="15" aria-pressed="true">15×</button>
+      <button type="button" data-speed="40" aria-pressed="false">40×</button>
+      <button type="button" data-speed="120" aria-pressed="false">120×</button>
+    </div>
+    <button class="btn" id="skip" type="button">Sari la etapa următoare</button>
+    <button class="btn" id="restart" type="button">Reia viața</button>
+    <label class="field" for="condition">Condiție
+      <select id="condition"></select>
+    </label>
+    <label class="field" for="seed">Sămânță
+      <input id="seed" type="number" min="1" max="99999" step="1" value="2">
+    </label>
+    <div class="clock" aria-live="polite">
+      <span class="t" id="clock-t">t = 0 s</span>
+      <span class="phase-name" id="clock-phase">Dependență</span>
+      <span class="muted small" id="clock-episode"></span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="bench" aria-label="Organismul și instrumentele">
+    <div class="left-col">
+    <div class="card arena-card">
+      <div class="arena-wrap">
+        <canvas id="arena" aria-label="Arena: organismul și obiectele din mediu"></canvas>
+        <div class="overlay" id="overlay" hidden><div class="msg"><strong id="overlay-title"></strong><span id="overlay-text" class="small muted"></span></div></div>
+      </div>
+      <div class="legend" id="arena-legend" aria-label="Legenda arenei"></div>
+      <div class="timeline">
+        <canvas id="timeline" aria-label="Calendarul vieții"></canvas>
+      </div>
+    </div>
+    <div class="card journal">
+      <header><h3>Jurnalul observatorului</h3><p>Cele mai noi sus</p></header>
+      <ol class="log" id="log"></ol>
+    </div>
+    </div>
+
+    <div class="instruments">
+      <div class="card">
+        <header><h3>Corpul</h3><p>Variabile vitale</p></header>
+        <div class="vitals">
+          <div class="meter"><span>Energie</span><div class="bar"><div class="fill" id="m-energy"></div></div><span class="val" id="v-energy">—</span></div>
+          <div class="meter"><span>Integritate</span><div class="bar"><div class="fill" id="m-integrity"></div></div><span class="val" id="v-integrity">—</span></div>
+          <div class="meter"><span>Leziune de organ</span><div class="bar"><div class="fill" id="m-organ"></div></div><span class="val" id="v-organ">—</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header><h3>Starea citită din exterior</h3><p>Eticheta e a observatorului</p></header>
+        <div class="state-card">
+          <div class="state-now">
+            <div class="state-chip"><span class="dot" id="state-dot"></span><span class="name" id="state-name">Calm</span></div>
+            <p class="state-why" id="state-why">Valență 0,00 · activare 0,00</p>
+            <p class="state-why muted" id="state-since"></p>
+          </div>
+          <canvas id="circumplex" aria-label="Spațiul afectiv: valență și activare"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <header><h3>Chimia internă</h3>
+          <div class="seg" id="hormone-window" role="group" aria-label="Fereastra de timp">
+            <button type="button" data-window="300" aria-pressed="true">Ultimele 5 min</button>
+            <button type="button" data-window="0" aria-pressed="false">Toată viața</button>
+          </div>
+        </header>
+        <canvas class="chart" id="hormones" aria-label="Hormonii în timp"></canvas>
+      </div>
+
+      <div class="card">
+        <header><h3>Cum funcționează creierul acum</h3><p>Setat de hormoni, nu de reguli</p></header>
+        <div class="gauges" id="gauges"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-head" aria-labelledby="mind-title">
+    <p class="eyebrow">Interiorul</p>
+    <h2 id="mind-title">Ce a învățat și ce îl mișcă</h2>
+    <p>Organismul vede doar nuanța obiectelor. Tot ce „știe” despre ele a învățat din consecințele asupra corpului.</p>
+  </section>
+
+  <section class="mind" aria-label="Mintea organismului">
+    <div class="card">
+      <header><h3>Ce așteaptă de la fiecare nuanță</h3><p>Asocieri învățate, pe tot spectrul</p></header>
+      <canvas class="chart" id="hue-chart" aria-label="Asocieri învățate pe spectrul nuanțelor"></canvas>
+      <p class="note">Culoarea de sub curbă e chiar nuanța stimulului. Etichetele de pe axă sunt ale observatorului; organismul nu le are.</p>
+    </div>
+
+    <div class="card">
+      <header><h3>Substanța: dorință și plăcere</h3><p>Pentru nuanța violet, în timp</p></header>
+      <div class="key-row" aria-hidden="true">
+        <span class="k"><span class="linekey" style="background:var(--m-want)"></span>Dorință (obișnuință)</span>
+        <span class="k"><span class="linekey" style="background:var(--m-like)"></span>Plăcere așteptată</span>
+        <span class="k"><span class="linekey" style="background:var(--m-goal)"></span>Evaluarea sistemului orientat spre scop</span>
+      </div>
+      <canvas class="chart" id="want-chart" aria-label="Dorință și plăcere pentru substanță"></canvas>
+      <p class="note">Dorința crește la fiecare doză, chiar când plăcerea scade: dopamina pe care o eliberează substanța nu poate fi „prezisă” de învățare.</p>
+    </div>
+
+    <div class="card">
+      <header><h3>Cum își împarte timpul</h3><p>Ponderea fiecărei activități, pe minut</p></header>
+      <div class="key-row" id="activity-key" aria-hidden="true"></div>
+      <canvas class="chart" id="activity-chart" aria-label="Activitățile în timp"></canvas>
+    </div>
+
+    <div class="card">
+      <header><h3>Stările observate în timp</h3><p>Persistă după ce stimulul dispare</p></header>
+      <div class="key-row" id="state-key" aria-hidden="true"></div>
+      <canvas class="chart" id="state-chart" aria-label="Stările emoționale în timp"></canvas>
+      <canvas class="chart" id="addiction-chart" aria-label="Receptori, substanță în sânge, control"></canvas>
+      <p class="note" id="addiction-note">Sus: starea citită de observator. Jos: sensibilitatea receptorilor dopaminergici, controlul deciziilor (1 = scop, 0 = obișnuință) și substanța din sânge.</p>
+    </div>
+    <div class="card wide">
+      <header><h3>Stările influențează deciziile</h3><p>Comportament mediu în fiecare stare, în viața curentă</p></header>
+      <div class="table-wrap">
+        <table class="state-table" id="state-table">
+          <thead><tr><th>Stare</th><th>Timp</th><th>Explorează</th><th>Repaus</th><th>Reacție (s)</th><th>Atenție</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Aceeași rețea, cu altă chimie, alege altfel: sub cortizol atenția se îngustează și alegerile devin rigide; cu dopamina scăzută, repausul câștigă.</p>
+    </div>
+  </section>
+
+
+  <section class="section-head" aria-labelledby="lab-title">
+    <p class="eyebrow">Laboratorul</p>
+    <h2 id="lab-title">Ce mecanism produce autodistrugerea?</h2>
+    <p>Aceleași vieți (aceleași semințe), opt condiții. Fiecare condiție elimină un singur mecanism. Dacă fenomenul dispare, mecanismul era necesar.</p>
+  </section>
+
+  <section class="card" aria-label="Rezultate experimentale">
+    <header>
+      <h3 id="lab-source">Rezultate</h3>
+      <div class="lab-controls">
+        <label class="field" for="lab-seeds">Vieți pe condiție
+          <select id="lab-seeds"><option value="6">6</option><option value="12" selected>12</option><option value="24">24</option></select>
+        </label>
+        <button class="btn" id="lab-run" type="button">Rulează în browser</button>
+        <div class="progress" aria-hidden="true"><div class="fill" id="lab-progress"></div></div>
+        <span class="small muted" id="lab-status"></span>
+      </div>
+    </header>
+    <div class="cond-grid" id="cond-grid"></div>
+    <h3 style="margin-top:18px">Toate cifrele</h3>
+    <p class="note" style="margin-top:2px">Mediana, cu quartilele 1 și 3 dedesubt. Neglijarea hranei: din momentele în care e flămând și are hrană în atenție, cât timp urmărește substanța.</p>
+    <div class="table-wrap"><table class="results" id="results-table"></table></div>
+  </section>
+
+  <section class="section-head" aria-labelledby="method-title">
+    <p class="eyebrow">Metoda</p>
+    <h2 id="method-title">Cum e construit</h2>
+  </section>
+
+  <section class="method">
+    <div class="card">
+      <h3>Corp și chimie</h3>
+      <ul>
+        <li><b>Corpul</b> are energie și integritate. Mediul îi trimite doar efecte fizice: energie absorbită, leziuni, un compus în sânge.</li>
+        <li><b>Grelina</b> crește cu deficitul energetic și amplifică valoarea a tot ce prezice energie.</li>
+        <li><b>Noradrenalina</b> crește la durere și surpriză: reacții mai rapide, alegeri mai rigide, atenție îngustată.</li>
+        <li><b>Cortizolul</b> integrează lent stresul: inhibă curiozitatea, încetinește vindecarea și mută controlul de la sistemul orientat spre scop spre obișnuință.</li>
+        <li><b>Dopamina</b>: semnalul fazic e eroarea de predicție; tonusul urmează momentul erorilor recente și setează vigoarea. Receptorii se adaptează la expunerea medie.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Învățare fără cunoștințe inițiale</h3>
+      <ul>
+        <li><b>Percepția</b> e un cod populațional pe nuanță (24 de neuroni acordați). Organismul nu primește niciodată tipul obiectelor.</li>
+        <li><b>Sistemul orientat spre scop</b> învață ce face fiecare nuanță corpului (energie, durere, rău intern, plăcere) și evaluează rezultatul pentru starea internă de acum.</li>
+        <li><b>Sistemul de obișnuință</b> păstrează o valoare în cache, învățată din eroarea dopaminergică.</li>
+        <li><b>Reflexe înnăscute</b>: ingerează ce ajunge la gură și se retrage după durere. Nu conțin nicio cunoaștere despre lume.</li>
+        <li><b>Stingerea</b> nu șterge o asociere: învață o inhibiție care se estompează, de aici recuperarea spontană.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Emoții fără etichete în cod</h3>
+      <ul>
+        <li>În codul organismului nu există frică, frustrare, calm sau apatie. Un test automat verifică asta la fiecare rulare.</li>
+        <li><b>Observatorul</b> citește fiziologia din exterior și o plasează în spațiul afectiv: valență, activare, direcție motivațională.</li>
+        <li>Stările persistă pentru că chimia e lentă: cortizolul rămâne ridicat minute întregi, sensibilizarea noradrenergică și mai mult.</li>
+        <li>Alt test verifică faptul că observatorul e pasiv: viața e identică cu sau fără el.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Substanța: doar trei proprietăți chimice</h3>
+      <ul>
+        <li>Un vârf mare de dopamină la administrare și dopamină tonică cât timp e în sânge.</li>
+        <li>Toxicitate tăcută, fără durere, plus o leziune cumulativă de organ care reduce vindecarea și absorbția.</li>
+        <li><b>Toleranța, sevrajul și anhedonia</b> nu sunt programate: apar din adaptarea generală a receptorilor.</li>
+        <li><b>Compulsia</b> apare din combinația: dopamină care nu poate fi prezisă, sistem de obișnuință și stres cronic. Laboratorul de mai sus le elimină pe rând.</li>
+      </ul>
+    </div>
+    <div class="card" style="grid-column: 1 / -1">
+      <h3>Ce nu demonstrează</h3>
+      <ul>
+        <li>Este un model computațional simplificat, nu o simulare a creierului uman. Parametrii sunt aleși pentru dinamici plauzibile, nu măsurați experimental.</li>
+        <li>„2%” și „un an” sunt metafore pentru nivelul de complexitate. Organismul nu are limbaj, memorie spațială sau planificare pe termen lung.</li>
+        <li>Rezultatul arată că mecanismele din literatură, combinate, sunt suficiente pentru autodistrugere fără nicio instrucțiune explicită. Nu arată că sunt singurele posibile.</li>
+        <li>Toate rezultatele sunt deterministe: aceeași sămânță dă aceeași viață, pe același motor JavaScript.</li>
+      </ul>
+    </div>
+    <div class="card" style="grid-column: 1 / -1">
+      <h3>Referințe pe care se sprijină mecanismele</h3>
+      <div class="refs" style="margin-top:8px">
+        <p>Keramati &amp; Gutkin (2014). Homeostatic reinforcement learning. <i>eLife</i>.</p>
+        <p>Redish (2004). Addiction as a computational process gone awry. <i>Science</i>.</p>
+        <p>Robinson &amp; Berridge (1993). The neural basis of drug craving: incentive-sensitization. <i>Brain Res. Rev.</i></p>
+        <p>Zhang, Berridge, Tindell, Smith &amp; Aldridge (2009). A neural computational model of incentive salience. <i>PLoS Comput. Biol.</i></p>
+        <p>Koob &amp; Le Moal (2001). Drug addiction, dysregulation of reward, and allostasis. <i>Neuropsychopharmacology</i>.</p>
+        <p>Solomon &amp; Corbit (1974). An opponent-process theory of motivation. <i>Psychol. Rev.</i></p>
+        <p>Everitt &amp; Robbins (2005). From actions to habits to compulsion. <i>Nat. Neurosci.</i></p>
+        <p>Schwabe &amp; Wolf (2009). Stress prompts habit behavior in humans. <i>J. Neurosci.</i></p>
+        <p>Daw, Niv &amp; Dayan (2005). Uncertainty-based competition between prefrontal and dorsolateral striatal systems. <i>Nat. Neurosci.</i></p>
+        <p>Doya (2002). Metalearning and neuromodulation. <i>Neural Networks</i>.</p>
+        <p>Schultz, Dayan &amp; Montague (1997). A neural substrate of prediction and reward. <i>Science</i>.</p>
+        <p>Niv, Daw, Joel &amp; Dayan (2007). Tonic dopamine: opportunity costs and the control of response vigor. <i>Psychopharmacology</i>.</p>
+        <p>Eldar, Rutledge, Dolan &amp; Niv (2016). Mood as representation of momentum. <i>Trends Cogn. Sci.</i></p>
+        <p>Abizaid et al. (2006). Ghrelin modulates the activity of midbrain dopamine neurons. <i>J. Clin. Invest.</i></p>
+        <p>Easterbrook (1959). The effect of emotion on cue utilization. <i>Psychol. Rev.</i></p>
+        <p>Russell (1980). A circumplex model of affect. <i>J. Pers. Soc. Psychol.</i></p>
+        <p>Barrett (2017). <i>How Emotions Are Made</i>.</p>
+        <p>Maier &amp; Seligman (2016). Learned helplessness at fifty. <i>Psychol. Rev.</i></p>
+        <p>Bouton (2004). Context and behavioral processes in extinction. <i>Learn. Mem.</i></p>
+        <p>Garcia &amp; Koelling (1966). Relation of cue to consequence in avoidance learning. <i>Psychon. Sci.</i></p>
+        <p>Hostinar, Sullivan &amp; Gunnar (2014). Social buffering of the HPA axis. <i>Psychol. Bull.</i></p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">Cod sursă: modulele din <span class="mono">src/</span>. Testele (<span class="mono">npm test</span>) verifică lipsa cunoștințelor preexistente, pasivitatea observatorului și fenomenele principale.</div>
+</footer>
+<div class="tooltip" id="tooltip" hidden></div>
+<script type="module" src="./src/ui/app.js"></script>
+</body>
+</html>
